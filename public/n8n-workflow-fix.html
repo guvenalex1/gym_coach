@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>n8n Workflow Troubleshooting Guide</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+        }
+        h1, h2, h3 {
+            color: #2c5282;
+        }
+        .step {
+            margin-bottom: 30px;
+            border-left: 4px solid #3182ce;
+            padding-left: 20px;
+        }
+        code {
+            background-color: #f1f1f1;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+        pre {
+            background-color: #f1f1f1;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        .important {
+            background-color: #fed7d7;
+            border-left: 4px solid #e53e3e;
+            padding: 10px 15px;
+            margin: 15px 0;
+        }
+        img {
+            max-width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>n8n Workflow Troubleshooting Guide</h1>
+    
+    <p>Based on the screenshot of your n8n workflow, here are the issues that might be preventing it from working with your website bot:</p>
+    
+    <div class="step">
+        <h2>Issue 1: Missing CORS Headers</h2>
+        <p>Your workflow doesn't appear to have CORS headers configured, which is causing the browser to block requests from your website.</p>
+        
+        <h3>Solution:</h3>
+        <p>Modify your "Respond to Webhook" node to include CORS headers:</p>
+        <pre>
+// In the "Respond to Webhook" node settings:
+1. Click on the "Respond to Webhook" node
+2. Scroll down to "Response Headers"
+3. Add the following headers:
+   - Access-Control-Allow-Origin: *
+   - Access-Control-Allow-Methods: POST, OPTIONS
+   - Access-Control-Allow-Headers: Content-Type, Authorization
+4. Click "Save"</pre>
+    </div>
+    
+    <div class="step">
+        <h2>Issue 2: Response Format</h2>
+        <p>Our website code expects a specific response format with a "reply" field and a "source" field.</p>
+        
+        <h3>Solution:</h3>
+        <p>Add a "Set" node between the AI Agent and Respond to Webhook nodes:</p>
+        <pre>
+1. Add a "Set" node between the AI Agent and Respond to Webhook
+2. Configure it as follows:
+   - Keep Only Set: Checked
+   - Values to Set:
+     - Field Name: reply
+       Value: {{$json.text}} (or whatever field contains the AI response)
+     - Field Name: source
+       Value: chatgpt
+3. Connect this node between AI Agent and Respond to Webhook
+4. Click "Save"</pre>
+    </div>
+    
+    <div class="step">
+        <h2>Issue 3: AI Agent Configuration</h2>
+        <p>The AI Agent node might not be properly configured to handle the fitness bot requests.</p>
+        
+        <h3>Solution:</h3>
+        <p>Configure the AI Agent with a proper system prompt:</p>
+        <pre>
+1. Click on the AI Agent node
+2. In the "System Prompt" field, enter:
+   You are FitAI, a helpful fitness assistant specializing in personalized fitness advice. 
+   The user's name is {{$json.body.name}} and their primary fitness goal is {{$json.body.goal}}.
+   Provide friendly, encouraging, and scientifically accurate fitness advice.
+   Keep responses concise but informative, focusing on actionable advice.
+3. Make sure the "Model" is connected to your OpenAI Chat Model
+4. Click "Save"</pre>
+    </div>
+    
+    <div class="step">
+        <h2>Issue 4: Webhook Configuration</h2>
+        <p>The webhook might not be properly activated or configured.</p>
+        
+        <h3>Solution:</h3>
+        <pre>
+1. Click on the Webhook node
+2. Make sure "Authentication" is set to "None" (or properly configured if you're using auth)
+3. Set "Response Mode" to "Last Node"
+4. Note the webhook URL (should be something like https://guvenalex1.app.n8n.cloud/webhook/fitness-bot)
+5. Make sure the workflow is activated (toggle in the top-right)
+6. Click "Save"</pre>
+        
+        <div class="important">
+            <p><strong>Important:</strong> After making changes, click the "Test" button in the top-right, then try to access the webhook again. In test mode, the webhook is only active for a short time after clicking "Test".</p>
+        </div>
+    </div>
+    
+    <div class="step">
+        <h2>Issue 5: Testing the Connection</h2>
+        <p>Use curl to test if the webhook is working correctly:</p>
+        <pre>
+curl -X POST -H "Content-Type: application/json" -d '{"message": "Can you give me a workout plan for weight loss?", "name": "Test User", "goal": "weight loss"}' https://guvenalex1.app.n8n.cloud/webhook/fitness-bot</pre>
+        
+        <p>If you receive a proper response, the webhook is working. If not, check the n8n execution log for errors.</p>
+    </div>
+    
+    <div class="step">
+        <h2>Issue 6: Updating Your Website Code</h2>
+        <p>Make sure your website code is using the correct webhook URL:</p>
+        <pre>
+// In gym_coach/pages/api/chatgpt-proxy.js
+// Update the URL to match your actual webhook URL:
+const n8nResponse = await fetch('https://guvenalex1.app.n8n.cloud/webhook/fitness-bot', {
+  // rest of the code...
+});</pre>
+    </div>
+    
+    <h2>Complete Workflow Example</h2>
+    <p>Your workflow should look something like this:</p>
+    <p>Webhook → AI Agent → Set (Format Response) → Respond to Webhook</p>
+    
+    <p>After making these changes, your n8n workflow should properly connect to your website bot and return responses from ChatGPT.</p>
+</body>
+</html>

@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify ChatGPT Connection</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        h1 {
+            color: #2c5282;
+            text-align: center;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .panel {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            background-color: #f8fafc;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #cbd5e0;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        textarea {
+            min-height: 100px;
+        }
+        button {
+            background-color: #3182ce;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #2c5282;
+        }
+        .response {
+            white-space: pre-wrap;
+            padding: 15px;
+            border: 1px solid #cbd5e0;
+            border-radius: 4px;
+            background-color: white;
+            min-height: 100px;
+        }
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 9999px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .badge-chatgpt {
+            background-color: #c6f6d5;
+            color: #22543d;
+        }
+        .badge-fallback {
+            background-color: #fed7d7;
+            color: #822727;
+        }
+        .badge-unknown {
+            background-color: #e2e8f0;
+            color: #4a5568;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border-left-color: #3182ce;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .verification-tests {
+            margin-top: 30px;
+        }
+        .test {
+            margin-bottom: 15px;
+            padding: 15px;
+            border-left: 4px solid #3182ce;
+            background-color: #ebf8ff;
+        }
+        .test-result {
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        .passed {
+            color: #22543d;
+        }
+        .failed {
+            color: #822727;
+        }
+        .url-input {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Verify ChatGPT Connection</h1>
+    
+    <div class="container">
+        <div class="panel">
+            <div class="url-input">
+                <label for="webhook-url">n8n Webhook URL:</label>
+                <input type="text" id="webhook-url" value="https://guvenalex1.app.n8n.cloud/webhook/fitness-bot" placeholder="Enter your n8n webhook URL">
+            </div>
+            
+            <div class="form-group">
+                <label for="name">Your Name:</label>
+                <input type="text" id="name" value="Test User">
+            </div>
+            
+            <div class="form-group">
+                <label for="goal">Fitness Goal:</label>
+                <select id="goal">
+                    <option value="weight loss">Weight Loss</option>
+                    <option value="muscle gain">Muscle Gain</option>
+                    <option value="overall fitness">Overall Fitness</option>
+                    <option value="endurance">Endurance</option>
+                    <option value="flexibility">Flexibility</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="message">Test Message:</label>
+                <textarea id="message">Can you give me a workout plan for weight loss?</textarea>
+            </div>
+            
+            <button id="send-request">Send Test Request</button>
+            
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <p>Sending request to n8n...</p>
+            </div>
+        </div>
+        
+        <div class="panel">
+            <h2>Response:</h2>
+            <div id="source-badge" class="badge badge-unknown">Unknown Source</div>
+            <div id="response" class="response">Response will appear here...</div>
+        </div>
+        
+        <div class="verification-tests">
+            <h2>Verification Tests:</h2>
+            
+            <div class="test">
+                <h3>Test 1: Response Format</h3>
+                <p>Checks if the response contains the expected fields (reply and source).</p>
+                <div id="test1-result" class="test-result">Not run yet</div>
+            </div>
+            
+            <div class="test">
+                <h3>Test 2: ChatGPT Source</h3>
+                <p>Verifies if the response is tagged as coming from ChatGPT.</p>
+                <div id="test2-result" class="test-result">Not run yet</div>
+            </div>
+            
+            <div class="test">
+                <h3>Test 3: Response Quality</h3>
+                <p>Analyzes the response to check if it appears to be AI-generated (length, complexity, personalization).</p>
+                <div id="test3-result" class="test-result">Not run yet</div>
+            </div>
+            
+            <div class="test">
+                <h3>Test 4: Personalization</h3>
+                <p>Checks if the response includes your name and fitness goal.</p>
+                <div id="test4-result" class="test-result">Not run yet</div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.getElementById('send-request').addEventListener('click', async () => {
+            const webhookUrl = document.getElementById('webhook-url').value.trim();
+            const name = document.getElementById('name').value;
+            const goal = document.getElementById('goal').value;
+            const message = document.getElementById('message').value;
+            
+            const loading = document.getElementById('loading');
+            const response = document.getElementById('response');
+            const sourceBadge = document.getElementById('source-badge');
+            
+            // Reset tests
+            document.getElementById('test1-result').textContent = 'Running...';
+            document.getElementById('test2-result').textContent = 'Running...';
+            document.getElementById('test3-result').textContent = 'Running...';
+            document.getElementById('test4-result').textContent = 'Running...';
+            
+            // Show loading
+            loading.style.display = 'block';
+            response.textContent = 'Waiting for response...';
+            sourceBadge.textContent = 'Pending';
+            sourceBadge.className = 'badge badge-unknown';
+            
+            try {
+                const res = await fetch(webhookUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message,
+                        name,
+                        goal,
+                        requestId: Date.now().toString(),
+                        testMode: true
+                    })
+                });
+                
+                const data = await res.json();
+                console.log('Response data:', data);
+                
+                // Display the response
+                response.textContent = typeof data.reply === 'string' ? data.reply : JSON.stringify(data, null, 2);
+                
+                // Test 1: Response Format
+                const test1Result = document.getElementById('test1-result');
+                if (data.reply !== undefined) {
+                    test1Result.textContent = '✅ PASSED: Response contains a "reply" field';
+                    test1Result.className = 'test-result passed';
+                } else {
+                    test1Result.textContent = '❌ FAILED: Response is missing the "reply" field';
+                    test1Result.className = 'test-result failed';
+                }
+                
+                // Test 2: ChatGPT Source
+                const test2Result = document.getElementById('test2-result');
+                if (data.source === 'chatgpt') {
+                    sourceBadge.textContent = 'ChatGPT';
+                    sourceBadge.className = 'badge badge-chatgpt';
+                    test2Result.textContent = '✅ PASSED: Response is tagged as coming from ChatGPT';
+                    test2Result.className = 'test-result passed';
+                } else {
+                    sourceBadge.textContent = data.source || 'Unknown Source';
+                    sourceBadge.className = 'badge badge-fallback';
+                    test2Result.textContent = '❌ FAILED: Response is not tagged as coming from ChatGPT';
+                    test2Result.className = 'test-result failed';
+                }
+                
+                // Test 3: Response Quality
+                const test3Result = document.getElementById('test3-result');
+                const responseText = typeof data.reply === 'string' ? data.reply : '';
+                if (responseText.length > 100 && responseText.includes(' ')) {
+                    test3Result.textContent = '✅ PASSED: Response appears to be AI-generated (sufficient length and complexity)';
+                    test3Result.className = 'test-result passed';
+                } else {
+                    test3Result.textContent = '❌ FAILED: Response does not appear to be AI-generated';
+                    test3Result.className = 'test-result failed';
+                }
+                
+                // Test 4: Personalization
+                const test4Result = document.getElementById('test4-result');
+                const hasName = responseText.toLowerCase().includes(name.toLowerCase());
+                const hasGoal = responseText.toLowerCase().includes(goal.toLowerCase());
+                if (hasName && hasGoal) {
+                    test4Result.textContent = '✅ PASSED: Response includes your name and fitness goal';
+                    test4Result.className = 'test-result passed';
+                } else if (hasName || hasGoal) {
+                    test4Result.textContent = '⚠️ PARTIAL: Response includes ' + 
+                        (hasName ? 'your name' : 'your fitness goal') + 
+                        ' but not ' + 
+                        (hasName ? 'your fitness goal' : 'your name');
+                    test4Result.className = 'test-result';
+                } else {
+                    test4Result.textContent = '❌ FAILED: Response does not include your name or fitness goal';
+                    test4Result.className = 'test-result failed';
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                response.textContent = `Error: ${error.message}`;
+                sourceBadge.textContent = 'Error';
+                sourceBadge.className = 'badge badge-fallback';
+                
+                // Mark all tests as failed
+                document.getElementById('test1-result').textContent = '❌ FAILED: Could not connect to webhook';
+                document.getElementById('test1-result').className = 'test-result failed';
+                document.getElementById('test2-result').textContent = '❌ FAILED: Could not connect to webhook';
+                document.getElementById('test2-result').className = 'test-result failed';
+                document.getElementById('test3-result').textContent = '❌ FAILED: Could not connect to webhook';
+                document.getElementById('test3-result').className = 'test-result failed';
+                document.getElementById('test4-result').textContent = '❌ FAILED: Could not connect to webhook';
+                document.getElementById('test4-result').className = 'test-result failed';
+            } finally {
+                loading.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
