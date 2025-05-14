@@ -1,0 +1,58 @@
+{
+  "projectName": "Fitness AI Coach",
+  "version": "1.0.0",
+  "description": "A web-based fitness coaching application that uses ChatGPT to provide personalized fitness advice and workout plans.",
+  "created": "2025-05-14",
+  "mainComponents": {
+    "frontend": {
+      "technology": "HTML/CSS/JavaScript",
+      "mainFiles": [
+        "public/index.html",
+        "public/bot.html"
+      ]
+    },
+    "backend": {
+      "technology": "Next.js API",
+      "mainFiles": [
+        "pages/api/chatgpt-proxy.js"
+      ]
+    },
+    "integration": {
+      "technology": "n8n workflow",
+      "endpoint": "https://guvenalex1.app.n8n.cloud/webhook/fitness-bot",
+      "documentation": "public/n8n-workflow-fix.html"
+    }
+  },
+  "configuration": {
+    "n8nWebhookUrl": "https://guvenalex1.app.n8n.cloud/webhook/fitness-bot"
+  },
+  "worklog": [
+    {
+      "date": "2025-05-14",
+      "description": "Created project metadata file and performed code quality analysis",
+      "changes": [
+        "Added project-metadata.json",
+        "Identified areas for code improvement"
+      ]
+    }
+  ],
+  "improvementRecommendations": {
+    "codeQuality": [
+      "Extract inline styles to separate CSS files",
+      "Move inline JavaScript to separate JS files",
+      "Create a centralized configuration file",
+      "Reduce code duplication across files",
+      "Implement proper error handling and logging"
+    ],
+    "structure": [
+      "Reorganize files into a more maintainable structure",
+      "Create a proper build process",
+      "Implement a modern framework like React or Vue"
+    ],
+    "features": [
+      "Add user authentication",
+      "Implement progress tracking",
+      "Create workout history storage"
+    ]
+  }
+}

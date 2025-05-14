@@ -1,5 +1,6 @@
 // Next.js API route for proxying requests to n8n webhook
 // This helps avoid CORS issues when calling the webhook directly from the browser
+const config = require('../../config');
 
 export default async function handler(req, res) {
   // Only allow POST requests
@@ -16,8 +17,10 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Message is required' });
     }
 
-    // n8n webhook URL
-    const webhookUrl = 'https://guvenalex1.app.n8n.cloud/webhook/fitness-bot';
+    // Get the webhook URL from config
+    const webhookUrl = config.api.n8nWebhook;
+
+    console.log(`Sending request to ${webhookUrl}`);
 
     // Forward the request to n8n
     const n8nResponse = await fetch(webhookUrl, {
