@@ -226,7 +226,14 @@
             sourceBadge.className = 'badge badge-unknown';
             
             try {
-                const res = await fetch(webhookUrl, {
+                // Use a CORS proxy service since we're running in a static file server
+                const corsProxy = 'https://corsproxy.io/?';
+                const targetUrl = encodeURIComponent(webhookUrl);
+                const proxyUrl = corsProxy + targetUrl;
+                
+                console.log('Sending request through CORS proxy:', proxyUrl);
+                
+                const res = await fetch(proxyUrl, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

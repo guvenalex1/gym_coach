@@ -63,39 +63,25 @@ document.addEventListener('DOMContentLoaded', function() {
         loading.style.display = 'block';
         
         try {
-            // First try the API proxy if available
-            let response;
-            let endpoint = '/api/chatgpt-proxy';
+            // Use a CORS proxy service since we're running in a static file server
+            // This is a public CORS proxy - in production, you should use your own server
+            const corsProxy = 'https://corsproxy.io/?';
+            const targetUrl = encodeURIComponent(webhookUrl);
+            const proxyUrl = corsProxy + targetUrl;
             
-            try {
-                response = await fetch(endpoint, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        message,
-                        name,
-                        goal,
-                        requestId: Date.now().toString()
-                    })
-                });
-            } catch (proxyError) {
-                console.log('Proxy error, falling back to direct webhook:', proxyError);
-                // Fall back to direct webhook if proxy fails
-                response = await fetch(webhookUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        message,
-                        name,
-                        goal,
-                        requestId: Date.now().toString()
-                    })
-                });
-            }
+            console.log('Sending request through CORS proxy');
+            const response = await fetch(proxyUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    message,
+                    name,
+                    goal,
+                    requestId: Date.now().toString()
+                })
+            });
             
             const data = await response.json();
             
